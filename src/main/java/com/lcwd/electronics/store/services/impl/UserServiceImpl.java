@@ -93,12 +93,10 @@ public class UserServiceImpl implements UserService {
 	        if (file.exists() && file.isFile()) {
 	            boolean deleted = file.delete();
 	            if (!deleted) {
-	                throw new IOException("Failed to delete file at path: " + userImagePath);
+	            	throw new NoSuchFileException("File does not exist at path: " + userImagePath);
 	            }
-	        } else {
-	            throw new NoSuchFileException("File does not exist at path: " + userImagePath);
-	        }
-	    } catch (IOException e) {
+	        } 
+	    } catch (Exception e) {
 	        // Log error if logging framework is available
 	        throw new NoSuchFileException("Error deleting file: " + e.getMessage());
 	    }

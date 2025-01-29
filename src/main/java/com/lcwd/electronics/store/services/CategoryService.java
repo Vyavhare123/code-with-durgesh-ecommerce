@@ -3,9 +3,11 @@ package com.lcwd.electronics.store.services;
 import com.lcwd.electronics.store.dtos.CategoryDto;
 import com.lcwd.electronics.store.dtos.PageableResponse;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CategoryService {
 	
@@ -25,6 +27,8 @@ public interface CategoryService {
 		
 		//get single category
 		
-		CategoryDto getSingleCategory(String categoryId);
+		CategoryDto getcategoryById(String categoryId);
+		
+		String uploadCategoryImage(MultipartFile file,String path) throws IOException;
 
 }

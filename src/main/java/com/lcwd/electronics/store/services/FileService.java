@@ -9,7 +9,7 @@ public interface FileService {
 	
 	// This is for uploading images 
 	String uploadfile(MultipartFile file,String path) throws IOException;
-	
+	// this for serve file 
 	InputStream getResource(String path,String name) throws IOException;
 
 }

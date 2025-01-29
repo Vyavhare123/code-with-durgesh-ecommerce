@@ -1,6 +1,7 @@
 package com.lcwd.electronics.store.exception;
 
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,7 +64,7 @@ public class GlobalExceptionHandler {
 		//apiResponseMassage.setMassage("Email id allredy exist");
 		apiResponseMassage.setMassage(ex.getMessage());
 		apiResponseMassage.setStatus(HttpStatus.BAD_REQUEST);
-		apiResponseMassage.setSuccess(true);
+		apiResponseMassage.setSuccess(false);
 		apiResponseMassage.setPath(request.getDescription(false));
 		return new ResponseEntity<>(apiResponseMassage, HttpStatus.NOT_FOUND);
 	}
@@ -76,7 +77,7 @@ public class GlobalExceptionHandler {
 		ApiResponseMassage apiResponseMassage= new ApiResponseMassage();
 		apiResponseMassage.setMassage(ex.getMessage());
 		apiResponseMassage.setStatus(HttpStatus.BAD_REQUEST);
-		apiResponseMassage.setSuccess(true);
+		apiResponseMassage.setSuccess(false);
 		apiResponseMassage.setPath(request.getDescription(false));
 		return new ResponseEntity<>(apiResponseMassage, HttpStatus.NOT_FOUND);
 	}
@@ -102,11 +103,35 @@ public class GlobalExceptionHandler {
 		ApiResponseMassage apiResponseMassage= new ApiResponseMassage();
 		apiResponseMassage.setMassage(ex.getMessage());
 		apiResponseMassage.setStatus(HttpStatus.NOT_FOUND);
-		apiResponseMassage.setSuccess(true);
+		apiResponseMassage.setSuccess(false);
 		apiResponseMassage.setPath(request.getDescription(false));
 		return new ResponseEntity<>(apiResponseMassage, HttpStatus.NOT_FOUND);
 	}
 	
+	//IOException
 	
+
+	@ExceptionHandler(IOException.class)
+	public ResponseEntity<ApiResponseMassage> handleIOException(IOException ex ,WebRequest request){
+		
+		logger.info("IOException  Envoked *********************************");
+		ApiResponseMassage apiResponseMassage= new ApiResponseMassage();
+		apiResponseMassage.setMassage(ex.getMessage());
+		apiResponseMassage.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+		apiResponseMassage.setSuccess(false);
+		apiResponseMassage.setPath(request.getDescription(false));
+		return new ResponseEntity<>(apiResponseMassage, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ApiResponseMassage> handleGeneralException(Exception ex, WebRequest request) {
+	    logger.error("General Exception Invoked", ex);
+	    ApiResponseMassage apiResponseMassage = new ApiResponseMassage();
+	    apiResponseMassage.setMassage("An error occurred: " + ex.getMessage());
+	    apiResponseMassage.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+	    apiResponseMassage.setSuccess(false);
+	    apiResponseMassage.setPath(request.getDescription(false));
+	    return new ResponseEntity<>(apiResponseMassage, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
 }

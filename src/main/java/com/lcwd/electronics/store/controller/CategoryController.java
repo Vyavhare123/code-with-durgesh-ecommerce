@@ -1,6 +1,9 @@
 package com.lcwd.electronics.store.controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,9 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.lcwd.electronics.store.dtos.ApiResponseMassage;
 import com.lcwd.electronics.store.dtos.CategoryDto;
+import com.lcwd.electronics.store.dtos.ImageResponse;
 import com.lcwd.electronics.store.dtos.PageableResponse;
+import com.lcwd.electronics.store.dtos.UserDto;
 import com.lcwd.electronics.store.services.CategoryService;
 import jakarta.validation.Valid;
 
@@ -23,6 +30,9 @@ import jakarta.validation.Valid;
 public class CategoryController {
 	@Autowired
 	private CategoryService categoryService;
+	
+	@Value("${category.profile.image.path}")
+	private String imageUploadPath;
 	
 	@PostMapping
 	public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto){
@@ -60,10 +70,34 @@ public class CategoryController {
 	
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<CategoryDto> getCategorById(@PathVariable (value = "categoryId") String categoryId){
-		CategoryDto singleCategory = categoryService.getSingleCategory(categoryId);
+		CategoryDto singleCategory = categoryService.getcategoryById(categoryId);
 		return new ResponseEntity<CategoryDto>(singleCategory,HttpStatus.OK);
 		
 		
 	}
+	
+	@PostMapping("/categoryImage/{CategoryId}")
+	public ResponseEntity<ImageResponse>uploadCategoryImage(@RequestParam("CategoryImage") MultipartFile file,@PathVariable("CategoryId") String categoryId) throws IOException{
+		//copy image to folder and get image name
+		String imageName = categoryService.uploadCategoryImage(file, imageUploadPath);
+		
+		//get category to update image name 
+		CategoryDto category = categoryService.getcategoryById(categoryId);
+		category.setCoverImage(imageName);
+		
+		//update image name for respective category in database
+		categoryService.updateCategory(category, categoryId);
+		
+		//return details information to user
+		ImageResponse imageResponse=new ImageResponse();
+		imageResponse.setImageName(imageName);
+		imageResponse.setMassage(imageName+" uploaded successfully");
+		imageResponse.setPath(imageUploadPath);
+		imageResponse.setStatus(HttpStatus.CREATED);
+		imageResponse.setSuccess(true);
+		return new ResponseEntity<ImageResponse>(imageResponse,HttpStatus.CREATED);	
+	}
+	
+	//upload user controller pending to write
 
 }
