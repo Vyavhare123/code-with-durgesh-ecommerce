@@ -2,8 +2,10 @@ package com.lcwd.electronics.store.services;
 
 import com.lcwd.electronics.store.dtos.CategoryDto;
 import com.lcwd.electronics.store.dtos.PageableResponse;
+import com.lcwd.electronics.store.exception.NoSuchFileException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import org.springframework.data.domain.Page;
@@ -30,5 +32,7 @@ public interface CategoryService {
 		CategoryDto getcategoryById(String categoryId);
 		
 		String uploadCategoryImage(MultipartFile file,String path) throws IOException;
+		
+		InputStream getCategoryImage(String path,String name) throws NoSuchFileException ,IOException;
 
 }

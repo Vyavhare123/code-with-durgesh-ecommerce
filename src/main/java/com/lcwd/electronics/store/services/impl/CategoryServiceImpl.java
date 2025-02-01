@@ -1,7 +1,9 @@
 package com.lcwd.electronics.store.services.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -25,6 +27,7 @@ import com.lcwd.electronics.store.dtos.UserDto;
 import com.lcwd.electronics.store.entities.Category;
 import com.lcwd.electronics.store.entities.User;
 import com.lcwd.electronics.store.exception.BadApiRequestException;
+import com.lcwd.electronics.store.exception.NoSuchFileException;
 import com.lcwd.electronics.store.exception.ResourceNoFoundException;
 import com.lcwd.electronics.store.helper.Helper;
 import com.lcwd.electronics.store.repositories.CategoryRepository;
@@ -134,6 +137,19 @@ public class CategoryServiceImpl implements CategoryService {
 		}
 		
 		
+	}
+	
+	// to show image to front end
+
+	@Override
+	public InputStream getCategoryImage(String path, String name) throws NoSuchFileException, IOException {
+//		String fullpath = path + File.separator + name;
+		File file = new File(path, name);
+	    if (!file.exists()) {
+	        throw new NoSuchFileException("Image not found at: " + file.getAbsolutePath());
+	    }
+		InputStream inputStream=new FileInputStream(file);
+		return inputStream;
 	}
 
 }

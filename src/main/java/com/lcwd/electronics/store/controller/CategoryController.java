@@ -1,11 +1,16 @@
 package com.lcwd.electronics.store.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +26,10 @@ import com.lcwd.electronics.store.dtos.ApiResponseMassage;
 import com.lcwd.electronics.store.dtos.CategoryDto;
 import com.lcwd.electronics.store.dtos.ImageResponse;
 import com.lcwd.electronics.store.dtos.PageableResponse;
-import com.lcwd.electronics.store.dtos.UserDto;
+import com.lcwd.electronics.store.exception.NoSuchFileException;
 import com.lcwd.electronics.store.services.CategoryService;
+
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -30,74 +37,97 @@ import jakarta.validation.Valid;
 public class CategoryController {
 	@Autowired
 	private CategoryService categoryService;
-	
+
 	@Value("${category.profile.image.path}")
 	private String imageUploadPath;
-	
+
 	@PostMapping
-	public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto){
+	public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
 		CategoryDto createCategory = categoryService.createCategory(categoryDto);
-		return new ResponseEntity<CategoryDto>(createCategory,HttpStatus.CREATED);
-		
+		return new ResponseEntity<CategoryDto>(createCategory, HttpStatus.CREATED);
+
 	}
+
 	@PutMapping("/{categoryId}")
-	public ResponseEntity<CategoryDto> updateCategory (@Valid @RequestBody CategoryDto categoryDto, @PathVariable(value = "categoryId") String categoryId ){
+	public ResponseEntity<CategoryDto> updateCategory(@Valid @RequestBody CategoryDto categoryDto,
+			@PathVariable(value = "categoryId") String categoryId) {
 		CategoryDto updateCategory = categoryService.updateCategory(categoryDto, categoryId);
-		return new ResponseEntity<CategoryDto>(updateCategory,HttpStatus.OK);
-		
+		return new ResponseEntity<CategoryDto>(updateCategory, HttpStatus.OK);
+
 	}
+
 	@DeleteMapping("/{categoryId}")
-	public ResponseEntity<ApiResponseMassage> deleteCategory(@PathVariable(value = "categoryId") String categoryId){
+	public ResponseEntity<ApiResponseMassage> deleteCategory(@PathVariable(value = "categoryId") String categoryId) {
 		categoryService.deletCatogory(categoryId);
-		ApiResponseMassage apiResponseMassage=new ApiResponseMassage();
-		apiResponseMassage.setMassage("category deleted succesfully having id : "+ categoryId);
+		ApiResponseMassage apiResponseMassage = new ApiResponseMassage();
+		apiResponseMassage.setMassage("category deleted succesfully having id : " + categoryId);
 		apiResponseMassage.setStatus(HttpStatus.OK);
 		apiResponseMassage.setSuccess(true);
-		apiResponseMassage.setPath("/category/"+categoryId);
-		return new ResponseEntity<ApiResponseMassage>(apiResponseMassage,HttpStatus.OK);
+		apiResponseMassage.setPath("/category/" + categoryId);
+		return new ResponseEntity<ApiResponseMassage>(apiResponseMassage, HttpStatus.OK);
 	}
-	
+
 	@GetMapping
-	public ResponseEntity <PageableResponse<CategoryDto>> getAllCategory(
-			@RequestParam (value = "pagenumber",defaultValue = "0" , required = false) int pagenumber,
-			@RequestParam (value = "pagesize",defaultValue = "10" , required = false) int pagesize,
-			@RequestParam (value = "sortBy",defaultValue = "title" , required = false) String sortBy,
-			@RequestParam (value = "sortDir",defaultValue = "asc" , required = false) String sortDir ){
-		PageableResponse<CategoryDto> allCategory = categoryService.getAllCategory(pagenumber, pagesize, sortBy, sortDir);
-		return new ResponseEntity<PageableResponse<CategoryDto>>(allCategory,HttpStatus.OK);
-		
+	public ResponseEntity<PageableResponse<CategoryDto>> getAllCategory(
+			@RequestParam(value = "pagenumber", defaultValue = "0", required = false) int pagenumber,
+			@RequestParam(value = "pagesize", defaultValue = "10", required = false) int pagesize,
+			@RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
+			@RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir) {
+		PageableResponse<CategoryDto> allCategory = categoryService.getAllCategory(pagenumber, pagesize, sortBy,
+				sortDir);
+		return new ResponseEntity<PageableResponse<CategoryDto>>(allCategory, HttpStatus.OK);
+
 	}
-	
+
 	@GetMapping("/{categoryId}")
-	public ResponseEntity<CategoryDto> getCategorById(@PathVariable (value = "categoryId") String categoryId){
+	public ResponseEntity<CategoryDto> getCategorById(@PathVariable(value = "categoryId") String categoryId) {
 		CategoryDto singleCategory = categoryService.getcategoryById(categoryId);
-		return new ResponseEntity<CategoryDto>(singleCategory,HttpStatus.OK);
-		
-		
+		return new ResponseEntity<CategoryDto>(singleCategory, HttpStatus.OK);
+
 	}
-	
+
 	@PostMapping("/categoryImage/{CategoryId}")
-	public ResponseEntity<ImageResponse>uploadCategoryImage(@RequestParam("CategoryImage") MultipartFile file,@PathVariable("CategoryId") String categoryId) throws IOException{
-		//copy image to folder and get image name
+	public ResponseEntity<ImageResponse> uploadCategoryImage(@RequestParam("CategoryImage") MultipartFile file,
+			@PathVariable("CategoryId") String categoryId) throws IOException {
+		// copy image to folder and get image name
 		String imageName = categoryService.uploadCategoryImage(file, imageUploadPath);
-		
-		//get category to update image name 
+
+		// get category to update image name
 		CategoryDto category = categoryService.getcategoryById(categoryId);
 		category.setCoverImage(imageName);
-		
-		//update image name for respective category in database
+
+		// update image name for respective category in database
 		categoryService.updateCategory(category, categoryId);
-		
-		//return details information to user
-		ImageResponse imageResponse=new ImageResponse();
+
+		// return details information to user
+		ImageResponse imageResponse = new ImageResponse();
 		imageResponse.setImageName(imageName);
-		imageResponse.setMassage(imageName+" uploaded successfully");
+		imageResponse.setMassage(imageName + " uploaded successfully");
 		imageResponse.setPath(imageUploadPath);
 		imageResponse.setStatus(HttpStatus.CREATED);
 		imageResponse.setSuccess(true);
-		return new ResponseEntity<ImageResponse>(imageResponse,HttpStatus.CREATED);	
+		return new ResponseEntity<ImageResponse>(imageResponse, HttpStatus.CREATED);
 	}
-	
-	//upload user controller pending to write
 
+	// this durgesh way serve image
+
+//	@GetMapping("/cateGoryimage/{categoryId}")
+//	public void serveUserImage(@PathVariable ("categoryId") String categoryId, HttpServletResponse response) throws NoSuchFileException, IOException {
+//		 CategoryDto getcategoryById = categoryService.getcategoryById(categoryId);
+//		InputStream resource = categoryService.getCategoryImage(imageUploadPath, getcategoryById.getCoverImage());
+//		response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+//		StreamUtils.copy(resource,response.getOutputStream());
+//	
+//	}
+
+	@GetMapping("/categoryImage/{categoryId}")
+	public ResponseEntity<Resource> getImage(@PathVariable("categoryId") String categoryId)
+			throws NoSuchFileException, IOException {
+
+		CategoryDto getcategoryById = categoryService.getcategoryById(categoryId);
+		InputStream imageStream = categoryService.getCategoryImage(imageUploadPath, getcategoryById.getCoverImage());
+
+		return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG) // Change based on the image type
+				.body(new InputStreamResource(imageStream));
+	}
 }

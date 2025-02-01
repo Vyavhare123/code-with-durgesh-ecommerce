@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.lcwd.electronics.store.exception.BadApiRequestException;
+import com.lcwd.electronics.store.exception.NoSuchFileException;
 import com.lcwd.electronics.store.services.FileService;
 @Service
 public class FileServiceImpl implements FileService {
@@ -62,12 +63,24 @@ public class FileServiceImpl implements FileService {
 		}
 
 	}
+//  Duregesh course code to serve image
+//	@Override
+//	public InputStream getResource(String path, String name) throws FileNotFoundException {
+//		String fullpath = path + File.separator + name;
+//		InputStream inputStream=new FileInputStream(fullpath);
+//		return inputStream;
+//	}
 
 	@Override
-	public InputStream getResource(String path, String name) throws FileNotFoundException {
-		String fullpath = path + File.separator + name;
-		InputStream inputStream=new FileInputStream(fullpath);
+	public InputStream getResource(String path, String name) throws IOException, NoSuchFileException {
+		File file =new File(path,name);
+		if(!file.exists()) {
+			throw new NoSuchFileException("Image not found at: " + file.getAbsolutePath());
+		}
+		InputStream inputStream= new FileInputStream(file);
 		return inputStream;
 	}
+	
+	
 
 }

@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -119,16 +121,26 @@ public class UserController {
 		
 		
 	}
+	//Durgesh course code
+//	@GetMapping("/image/{userId}")
+//	public void serveUserImage(@PathVariable ("userId") String userId, HttpServletResponse response) throws IOException {
+//		UserDto user = userService.getUserById(userId);
+//		
+//		log.info("user image name: {}",user.getImageName());
+//		
+//		InputStream resource = fileService.getResource(imageUploadPath, user.getImageName());
+//		
+//		response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+//		StreamUtils.copy(resource,response.getOutputStream());
+//	
+//	}
 	@GetMapping("/image/{userId}")
-	public void serveUserImage(@PathVariable ("userId") String userId, HttpServletResponse response) throws IOException {
+	public ResponseEntity<Resource> serveUserImage(@PathVariable ("userId") String userId ) throws IOException, NoSuchFileException{
 		UserDto user = userService.getUserById(userId);
+		InputStream imageStream = fileService.getResource(imageUploadPath, user.getImageName());
 		
-		log.info("user image name: {}",user.getImageName());
+		return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+				.body(new InputStreamResource(imageStream));
 		
-		InputStream resource = fileService.getResource(imageUploadPath, user.getImageName());
-		
-		response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-		StreamUtils.copy(resource,response.getOutputStream());
-	
 	}
 }
