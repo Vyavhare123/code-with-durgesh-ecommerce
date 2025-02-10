@@ -31,8 +31,8 @@ public interface CategoryService {
 		
 		CategoryDto getcategoryById(String categoryId);
 		
-		String uploadCategoryImage(MultipartFile file,String path) throws IOException;
-		
-		InputStream getCategoryImage(String path,String name) throws NoSuchFileException ,IOException;
+//		String uploadCategoryImage(MultipartFile file,String path) throws IOException;
+//		
+//		InputStream getCategoryImage(String path,String name) throws NoSuchFileException ,IOException;
 
 }

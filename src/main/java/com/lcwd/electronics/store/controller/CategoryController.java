@@ -28,6 +28,7 @@ import com.lcwd.electronics.store.dtos.ImageResponse;
 import com.lcwd.electronics.store.dtos.PageableResponse;
 import com.lcwd.electronics.store.exception.NoSuchFileException;
 import com.lcwd.electronics.store.services.CategoryService;
+import com.lcwd.electronics.store.services.FileService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -37,6 +38,9 @@ import jakarta.validation.Valid;
 public class CategoryController {
 	@Autowired
 	private CategoryService categoryService;
+	
+	@Autowired
+	private FileService fileService;
 
 	@Value("${category.profile.image.path}")
 	private String imageUploadPath;
@@ -90,7 +94,7 @@ public class CategoryController {
 	public ResponseEntity<ImageResponse> uploadCategoryImage(@RequestParam("CategoryImage") MultipartFile file,
 			@PathVariable("CategoryId") String categoryId) throws IOException {
 		// copy image to folder and get image name
-		String imageName = categoryService.uploadCategoryImage(file, imageUploadPath);
+		String imageName = fileService.uploadfile(file, imageUploadPath);
 
 		// get category to update image name
 		CategoryDto category = categoryService.getcategoryById(categoryId);
@@ -125,7 +129,7 @@ public class CategoryController {
 			throws NoSuchFileException, IOException {
 
 		CategoryDto getcategoryById = categoryService.getcategoryById(categoryId);
-		InputStream imageStream = categoryService.getCategoryImage(imageUploadPath, getcategoryById.getCoverImage());
+		InputStream imageStream = fileService.getResource(imageUploadPath, getcategoryById.getCoverImage());
 
 		return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG) // Change based on the image type
 				.body(new InputStreamResource(imageStream));

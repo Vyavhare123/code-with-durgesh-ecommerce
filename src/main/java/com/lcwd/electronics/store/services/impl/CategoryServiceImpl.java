@@ -103,53 +103,53 @@ public class CategoryServiceImpl implements CategoryService {
 		return mappEntityIntoDto;
 	}
 
-	@Override
-	public String uploadCategoryImage(MultipartFile file, String path) throws IOException {
-		//get file name
-		String originalFilename = file.getOriginalFilename();
-		if(originalFilename==null || originalFilename.isEmpty()) {
-			throw new BadApiRequestException("image name is missing");
-		}
-		// get .png .jpg extension from image
-		String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toString();
-		//// Create unique filename
-		String uniqueImageName=UUID.randomUUID().toString()+extension;
-		//create full image path
-		String fullPath=path+uniqueImageName;
-		
-		if(extension.equalsIgnoreCase(".png")|| extension.equalsIgnoreCase(".jpg")|| extension.equalsIgnoreCase(".jpeg")) 
-		{
-			File folder=new  File(path);
-			if(!folder.exists()) {
-				boolean createFolder = folder.mkdirs();
-				if(!createFolder) {
-					throw new IOException("Failed to create directory: " + path);
-				}
-				
-				
-			}
-			
-			Files.copy(file.getInputStream(), Paths.get(fullPath),StandardCopyOption.REPLACE_EXISTING);
-			//return imagename
-			return uniqueImageName;
-		}else {
-			throw new BadApiRequestException("Unsupported file type. Allowed types are: .png, .jpg, .jpeg");
-		}
-		
-		
-	}
+//	@Override
+//	public String uploadCategoryImage(MultipartFile file, String path) throws IOException {
+//		//get file name
+//		String originalFilename = file.getOriginalFilename();
+//		if(originalFilename==null || originalFilename.isEmpty()) {
+//			throw new BadApiRequestException("image name is missing");
+//		}
+//		// get .png .jpg extension from image
+//		String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toString();
+//		//// Create unique filename
+//		String uniqueImageName=UUID.randomUUID().toString()+extension;
+//		//create full image path
+//		String fullPath=path+uniqueImageName;
+//		
+//		if(extension.equalsIgnoreCase(".png")|| extension.equalsIgnoreCase(".jpg")|| extension.equalsIgnoreCase(".jpeg")) 
+//		{
+//			File folder=new  File(path);
+//			if(!folder.exists()) {
+//				boolean createFolder = folder.mkdirs();
+//				if(!createFolder) {
+//					throw new IOException("Failed to create directory: " + path);
+//				}
+//				
+//				
+//			}
+//			
+//			Files.copy(file.getInputStream(), Paths.get(fullPath),StandardCopyOption.REPLACE_EXISTING);
+//			//return imagename
+//			return uniqueImageName;
+//		}else {
+//			throw new BadApiRequestException("Unsupported file type. Allowed types are: .png, .jpg, .jpeg");
+//		}
+//		
+//		
+//	}
 	
 	// to show image to front end
 
-	@Override
-	public InputStream getCategoryImage(String path, String name) throws NoSuchFileException, IOException {
-//		String fullpath = path + File.separator + name;
-		File file = new File(path, name);
-	    if (!file.exists()) {
-	        throw new NoSuchFileException("Image not found at: " + file.getAbsolutePath());
-	    }
-		InputStream inputStream=new FileInputStream(file);
-		return inputStream;
-	}
+//	@Override
+//	public InputStream getCategoryImage(String path, String name) throws NoSuchFileException, IOException {
+////		String fullpath = path + File.separator + name;
+//		File file = new File(path, name);
+//	    if (!file.exists()) {
+//	        throw new NoSuchFileException("Image not found at: " + file.getAbsolutePath());
+//	    }
+//		InputStream inputStream=new FileInputStream(file);
+//		return inputStream;
+//	}
 
 }

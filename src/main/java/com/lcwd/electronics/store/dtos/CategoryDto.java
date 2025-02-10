@@ -1,5 +1,7 @@
 package com.lcwd.electronics.store.dtos;
 
+import com.lcwd.electronics.store.validate.ImageNameValid;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -22,6 +24,7 @@ public class CategoryDto {
 	private String title;
 	@Size(min = 4, max = 100, message = "Description must have between 4 and 100 characters")
 	private String discription;
+	@ImageNameValid
 	private String coverImage;
 
 }
